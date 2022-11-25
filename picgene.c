@@ -64,7 +64,7 @@ struct Amoeba best_now;
 void init_pic(){
 	FILE* fio;
 	int i,j,k,r,g,b;
-	fio=fopen("data.txt","r");
+	fio=fopen("boxes_1.ppm","r");
 	fscanf(fio,"%d%d", &height, &width);
 	for(i=0;i<height;i++){
 		for(j=0;j<width;j++){
@@ -292,8 +292,8 @@ void init_pool(){
 void print_best(){
 	int i, j, k, l, r, g, b, x;
 	FILE* fio;
-	fio=fopen("result.txt","a");
-	fprintf(fio,"----------------------------------\n");
+	fio=fopen("result.ppm","a");
+	fprintf(fio,"P3\n");
 	fprintf(fio,"%d %d %d %d %d\n",height,width,GeneNum,iternum,best_now.evaluation);
 	/*
 	fprintf(fio,"%d %d %d\n",pixel_average.R,pixel_average.G,pixel_average.B);
@@ -405,8 +405,6 @@ int main(){
 	int i;
 	char c;
 	init_pic();
-	printf("return\n");
-	return 0;
 	init_pool();
 	best_now=pool[0];
 	iternum=0;
