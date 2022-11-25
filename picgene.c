@@ -25,13 +25,13 @@ SOFTWARE.
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <io.h>
+#include "io.h"
 #include <time.h>
 
-const int GeneNum = 100;
-const int CommutateNum = 10;
-const int Population = 30;
-const int Mutation_Rate_Mask = 2047;
+#define GeneNum 100
+#define CommutateNum 10
+#define Population 30
+#define Mutation_Rate_Mask 2047
 
 struct pixel{
 	int R;
@@ -48,18 +48,18 @@ struct triangle{
 };
 
 struct Amoeba{
-	triangle gene[GeneNum];
-	pixel appearance[200][200];
+	struct triangle gene[GeneNum];
+	struct pixel appearance[200][200];
 	int evaluation;
 };
 
 
 
-pixel pic[200][200];
-pixel pixel_average;
+struct pixel pic[200][200];
+struct pixel pixel_average;
 int height, width, iternum;
-Amoeba pool[Population];
-Amoeba best_now;
+struct Amoeba pool[Population];
+struct Amoeba best_now;
 
 void init_pic(){
 	FILE* fio;
@@ -84,9 +84,10 @@ int sgn_int(int a){
 	if(a>0) return 1; else if(a<0) return -1; else return 0;
 }
 
-void cover_triangle(Amoeba* obj, int gen){
+void cover_triangle(struct Amoeba *obj, int gen)
+{
 	int i, j, k, l, p, maxx, minx, maxy, miny, sgn1, sgn2;
-	triangle tri;
+	struct triangle tri;
 	tri=obj->gene[gen];
 	maxx=0;
 	minx=height;
@@ -167,9 +168,10 @@ void cover_triangle(Amoeba* obj, int gen){
 	return;
 }
 
-void delete_triangle(Amoeba* obj, int gen){
+void delete_triangle(struct Amoeba *obj, int gen)
+{
 	int i, j, k, l, p, maxx, minx, maxy, miny, sgn1, sgn2;
-	triangle tri;
+	struct triangle tri;
 	tri=obj->gene[gen];
 	maxx=0;
 	minx=height;
@@ -249,7 +251,8 @@ void delete_triangle(Amoeba* obj, int gen){
 	}
 	return;
 }
-void evaluate(Amoeba* obj){
+void evaluate(struct Amoeba *obj)
+{
 	int i, j, s, m1;
 	s=0;
 	for(i=0;i<height;i++){
@@ -402,10 +405,12 @@ int main(){
 	int i;
 	char c;
 	init_pic();
+	printf("return\n");
+	return 0;
 	init_pool();
 	best_now=pool[0];
 	iternum=0;
-	while(true){
+	while(1){
 		scanf("%d",&i);
 		while(i>=iternum) iterate_generation();
 		print_info();
