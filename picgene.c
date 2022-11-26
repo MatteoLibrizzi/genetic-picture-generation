@@ -25,6 +25,7 @@ SOFTWARE.
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <MLV/MLV_all.h>
 #include "io.h"
 #include <time.h>
 
@@ -33,96 +34,123 @@ SOFTWARE.
 #define Population 30
 #define Mutation_Rate_Mask 2047
 
-struct pixel{
+typedef struct pixel{
 	int R;
 	int G;
 	int B;
 	int m;
-};
+} Pixel;
 
-struct triangle{
+typedef struct triangle{
 	int point[3][2];
 	int R;
 	int G;
 	int B;
-};
+} Triangle;
 
-struct Amoeba{
-	struct triangle gene[GeneNum];
-	struct pixel appearance[200][200];
+typedef struct amoeba{
+	Triangle gene[GeneNum];
+	Pixel appearance[200][200];
 	int evaluation;
-};
+} Amoeba;
 
 
 
-struct pixel pic[200][200];
-struct pixel pixel_average;
+Pixel pic[200][200];
+Pixel pixel_average;
 int height, width, iternum;
-struct Amoeba pool[Population];
-struct Amoeba best_now;
+Amoeba pool[Population];
+Amoeba best_now;
 
 void init_pic(){
 	FILE* fio;
 	int i,j,k,r,g,b;
 	fio=fopen("boxes_1.ppm","r");
 	fscanf(fio,"%d%d", &height, &width);
+
+	int pixelCounter;
+	int rAcc = 0, gAcc = 0, bAcc = 0;
+
 	for(i=0;i<height;i++){
 		for(j=0;j<width;j++){
 			fscanf(fio,"%d%d%d",&r,&g,&b);
-			pic[i][j].R=r;
-			pic[i][j].G=g;
-			pic[i][j].B=b;
-			pic[i][j].m=1;
+			pic[i][j].R = r;
+			rAcc += r;
+
+			pic[i][j].G = g;
+			gAcc += g;
+
+			pic[i][j].B = b;
+			bAcc += b;
+
+			pic[i][j].m = 1;
+
+			pixelCounter++;
 		}
 	}
 	fclose(fio);
-	pixel_average=pic[0][0];
+	rAcc /= pixelCounter;
+	gAcc /= pixelCounter;
+	bAcc /= pixelCounter;
+
+	pixel_average = (Pixel) {rAcc, gAcc, bAcc, 1};
 	return;
 }
 
 int sgn_int(int a){
-	if(a>0) return 1; else if(a<0) return -1; else return 0;
+	return a > 0 ? 1 : (a < 0 ? -1 : 0);
 }
 
-void cover_triangle(struct Amoeba *obj, int gen)
+void cover_triangle(Amoeba *obj, int gen)
 {
 	int i, j, k, l, p, maxx, minx, maxy, miny, sgn1, sgn2;
-	struct triangle tri;
-	tri=obj->gene[gen];
-	maxx=0;
-	minx=height;
-	maxy=0;
-	miny=width;
+	Triangle tri = obj->gene[gen];
+
+	maxx = 0;
+	minx = height;
+	maxy = 0;
+	miny = width;
+
 	for(i=0;i<3;i++){
-		if(tri.point[i][0]>maxx) maxx=tri.point[i][0];
-		if(tri.point[i][0]<minx) minx=tri.point[i][0];
-		if(tri.point[i][1]>maxy) maxy=tri.point[i][1];
-		if(tri.point[i][1]<miny) miny=tri.point[i][1];
+		if(tri.point[i][0]>maxx) 
+			maxx = tri.point[i][0];
+
+		if(tri.point[i][0]<minx) 
+			minx = tri.point[i][0];
+
+		if(tri.point[i][1]>maxy) 
+			maxy = tri.point[i][1];
+
+		if(tri.point[i][1]<miny) 
+			miny = tri.point[i][1];
 	}
+
 	for(p=0;p<3;p++){
-		l=p+1;
-		if(l==3) l=0;
-		sgn1=tri.point[l][0]-tri.point[p][0];
-		sgn2=tri.point[l][1]-tri.point[p][1];
-		if(sgn_int(sgn1)==0){
-			i=tri.point[p][0];
-			j=tri.point[p][1];
-			sgn2=sgn_int(sgn2);
+		l = (p+1);
+		if(l==3) l=0;/*likely refactor*/
+
+		sgn1 = tri.point[l][0] - tri.point[p][0];
+		sgn2 = tri.point[l][1] - tri.point[p][1];
+
+		if(sgn_int(sgn1) == 0){/*obj1 == 0*/
+			i = tri.point[p][0];
+			j = tri.point[p][1];
+			sgn2 = sgn_int(sgn2);
 			do{
-				obj->appearance[i][j].m=-abs(obj->appearance[i][j].m);
-				j+=sgn2;
-			}while(j!=tri.point[l][1]);
-		}
-		else if(sgn_int(sgn2)==0){
-			i=tri.point[p][0];
-			j=tri.point[p][1];
-			sgn1=sgn_int(sgn1);
+				obj->appearance[i][j].m = -abs(obj->appearance[i][j].m);
+				j += sgn2;
+			}while(j != tri.point[l][1]);
+		} else 
+		if(sgn_int(sgn2) == 0) {/*obj2 == 0*/
+			i = tri.point[p][0];
+			j = tri.point[p][1];
+			sgn1 = sgn_int(sgn1);
 			do{
-				obj->appearance[i][j].m=-abs(obj->appearance[i][j].m);
-				i+=sgn1;
-			}while(i!=tri.point[l][0]);
-		}
-		else if(abs(sgn1)>abs(sgn2)){
+				obj->appearance[i][j].m = -abs(obj->appearance[i][j].m);
+				i += sgn1;
+			}while(i != tri.point[l][0]);
+		} else 
+		if(abs(sgn1) > abs(sgn2)){/*if obj1 != 0 and obj2 == 0 impossible because of previus condition?*/
 			i=tri.point[p][0];
 			j=tri.point[p][1];
 			k=0;
@@ -136,21 +164,20 @@ void cover_triangle(struct Amoeba *obj, int gen)
 				}
 			}while((i!=tri.point[l][0])||(j!=tri.point[l][1]));
 			obj->appearance[i][j].m=-abs(obj->appearance[i][j].m);
-		}
-		else{
-			i=tri.point[p][0];
-			j=tri.point[p][1];
-			k=0;
+		} else {
+			i = tri.point[p][0];
+			j = tri.point[p][1];
+			k = 0;
 			do{
-				obj->appearance[i][j].m=-abs(obj->appearance[i][j].m);
+				obj->appearance[i][j].m = -abs(obj->appearance[i][j].m);
 				j+=sgn_int(sgn2);
 				k+=abs(sgn1);
 				if((abs(k)<<1)>abs(sgn2)){
 					i+=sgn_int(sgn1);
 					k-=abs(sgn2);
 				}
-			}while((i!=tri.point[l][0])||(j!=tri.point[l][1]));
-			obj->appearance[i][j].m=-abs(obj->appearance[i][j].m);
+			}while((i != tri.point[l][0]) || (j != tri.point[l][1]));
+			obj->appearance[i][j].m = -abs(obj->appearance[i][j].m);
 		}
 	}
 	for(i=minx;i<=maxx;i++){
@@ -168,10 +195,10 @@ void cover_triangle(struct Amoeba *obj, int gen)
 	return;
 }
 
-void delete_triangle(struct Amoeba *obj, int gen)
+void delete_triangle(Amoeba *obj, int gen)
 {
 	int i, j, k, l, p, maxx, minx, maxy, miny, sgn1, sgn2;
-	struct triangle tri;
+	Triangle tri;
 	tri=obj->gene[gen];
 	maxx=0;
 	minx=height;
@@ -251,37 +278,40 @@ void delete_triangle(struct Amoeba *obj, int gen)
 	}
 	return;
 }
-void evaluate(struct Amoeba *obj)
+void evaluate(Amoeba *obj)
 {
 	int i, j, s, m1;
 	s=0;
 	for(i=0;i<height;i++){
 		for(j=0;j<width;j++){
 			m1=obj->appearance[i][j].m;
-			s+=abs((obj->appearance[i][j].R)/m1-pic[i][j].R)+abs((obj->appearance[i][j].G)/m1-pic[i][j].G)+abs((obj->appearance[i][j].B)/m1-pic[i][j].B);
+			s 	+= 	abs((obj->appearance[i][j].R)/m1	-pic[i][j].R)
+				+	abs((obj->appearance[i][j].G)/m1	-pic[i][j].G)
+				+	abs((obj->appearance[i][j].B)/m1	-pic[i][j].B);
 		}
 	}
-	obj->evaluation=s;
+	obj->evaluation = s;
 	return;
 }
 
 void init_pool(){
 	int i, j, k, l;
 	srand(time(NULL));
+
 	for(i=0;i<Population;i++){
 		for(j=0;j<height;j++){
 			for(k=0;k<width;k++){
-				pool[i].appearance[j][k]=pixel_average;
+				pool[i].appearance[j][k] = pixel_average;
 			}
 		}
 		for(j=0;j<GeneNum;j++){
 			for(k=0;k<3;k++){
-				pool[i].gene[j].point[k][0]=rand()%height;
-				pool[i].gene[j].point[k][1]=rand()%width;
+				pool[i].gene[j].point[k][0] = rand()%height;
+				pool[i].gene[j].point[k][1] = rand()%width;
 			}
-			pool[i].gene[j].R=rand()&255;
-			pool[i].gene[j].G=rand()&255;
-			pool[i].gene[j].B=rand()&255;
+			pool[i].gene[j].R = rand()&255;/*same as % 256*/
+			pool[i].gene[j].G = rand()&255;
+			pool[i].gene[j].B = rand()&255;
 			cover_triangle(&pool[i],j);
 		}
 		evaluate(&pool[i]);
@@ -406,7 +436,7 @@ int main(){
 	char c;
 	init_pic();
 	init_pool();
-	best_now=pool[0];
+	best_now = pool[0];
 	iternum=0;
 	while(1){
 		scanf("%d",&i);
