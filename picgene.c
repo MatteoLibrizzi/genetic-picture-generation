@@ -70,7 +70,7 @@ void init_pic(){
 	char* trash;
 	fio=fopen("geometric.ppm","r");
 
-	fscanf(fio, "%s", &trash);/* read PX string */
+	fscanf(fio, "%s", &trash);/* read P3 string */
 
 	fscanf(fio,"%d%d", &height, &width);
 	printf("%d %d\n",height,width);
@@ -108,7 +108,7 @@ int sgn_int(int a){
 	return a > 0 ? 1 : (a < 0 ? -1 : 0);
 }
 
-void cover_triangle(Amoeba *obj, int gen)
+void cover_triangle(Amoeba *obj, int gen)/*draws triangle according to the picture*/
 {
 	int i, j, k, l, p, maxx, minx, maxy, miny, sgn1, sgn2;
 	Triangle tri = obj->gene[gen];
@@ -202,7 +202,7 @@ void cover_triangle(Amoeba *obj, int gen)
 	return;
 }
 
-void delete_triangle(Amoeba *obj, int gen)
+void delete_triangle(Amoeba *obj, int gen)/*removes triangle*/
 {
 	int i, j, k, l, p, maxx, minx, maxy, miny, sgn1, sgn2;
 	Triangle tri;
@@ -285,6 +285,7 @@ void delete_triangle(Amoeba *obj, int gen)
 	}
 	return;
 }
+
 void evaluate(Amoeba *obj)
 {
 	int i, j, s, m1;
@@ -450,22 +451,28 @@ int main(){
 	MLV_Image *im = MLV_load_image("geometric.ppm");
 	MLV_draw_image(im,0,0);
 	MLV_actualise_window();
-	MLV_wait_seconds(3);
+	MLV_wait_seconds(1);
 
 	init_pic();
 	init_pool();
 	best_now = pool[0];
 	iternum=0;
-	while(1){
-		scanf("%d",&i);
-		while(i>=iternum) iterate_generation();
-		print_info();
-		print_best();
-		i++;
-	}
+
+	scanf("%d",&i);
+	while(i>=iternum) iterate_generation();
+	print_info();
+	print_best();
+	
+	MLV_actualise_window();
 	MLV_Image *im2 = MLV_load_image("result.ppm");
-	MLV_draw_image(im2, 0, 300);
+	MLV_draw_image(im2, 300, 300);
 	MLV_actualise_window();
 	MLV_wait_seconds(20);
+
+
+	MLV_free_image(im);
+	MLV_free_image(im2);
+	MLV_free_window();
+
 	return 0;
 }
