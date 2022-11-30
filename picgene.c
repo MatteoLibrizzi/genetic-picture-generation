@@ -30,6 +30,7 @@ SOFTWARE.
 #include <time.h>
 #include "types.h"
 #include "imageIO.h"
+#include "utils.h"
 
 
 
@@ -39,10 +40,6 @@ Pixel pixel_average;
 int height, width, iternum;
 Amoeba pool[Population];
 Amoeba best_now;
-
-int sgn_int(int a){
-	return a > 0 ? 1 : (a < 0 ? -1 : 0);
-}
 
 void cover_triangle(Amoeba *obj, int gen)/*draws triangle according to the picture*/
 {
@@ -352,7 +349,6 @@ int main(){
 	MLV_Image *im = MLV_load_image("geometric.ppm");
 	MLV_draw_image(im,0,0);
 	MLV_actualise_window();
-	MLV_wait_seconds(1);
 
 	init_pic("geometric.ppm",pic,&pixel_average,&height,&width);
 	init_pool();
