@@ -1,0 +1,139 @@
+
+#include "types.h"
+#include "utils.h"
+#include <stdlib.h>
+#include <stdio.h>
+
+void evaluate(Amoeba *amoeba, Pixel *pic, int height, int width)
+{
+    int i, j, m1;
+    int r, g, b;
+    int s = 0;
+    for (i = 0; i < height; i++)
+    {
+        for (j = 0; j < width; j++)
+        {
+            m1 = amoeba->appearance[i][j].m;
+            /*distance between picture and current pixel value gives a score*/
+            /*color pixel in the amoeba / its transparency - pixel in the picture*/
+            r = abs(((amoeba->appearance[i]+j)->R) / m1 - (&pic[i]+j)->R);
+            g = abs(((amoeba->appearance[i]+j)->G) / m1 - (&pic[i]+j)->G);
+            b = abs(((amoeba->appearance[i]+j)->B) / m1 - (&pic[i]+j)->B);
+            s += r + g + b;
+        }
+    }
+    amoeba->evaluation = s;
+    return;
+}
+
+void cover_triangle(Amoeba *obj, int gen, int height, int width)/*draws triangle according to the picture*/
+{
+    int i, j, k, l, p, maxx, minx, maxy, miny, sgn1, sgn2;
+    Triangle tri = obj->gene[gen];
+
+    maxx = 0; /*I think names should be swapped but until I can be sure I'm leaving it like this*/
+    minx = height;
+    maxy = 0;
+    miny = width;
+
+    for (i = 0; i < 3; i++)
+    { /*here we look for the point most to the left/right/up/down*/
+        if (tri.point[i][Y] > maxx)
+            maxx = tri.point[i][Y];
+
+        if (tri.point[i][Y] < minx)
+            minx = tri.point[i][Y];
+
+        if (tri.point[i][X] > maxy)
+            maxy = tri.point[i][X];
+
+        if (tri.point[i][X] < miny)
+            miny = tri.point[i][X];
+    }
+
+    for (p = 0; p < 3; p++)
+    {
+        l = (p + 1);
+        if (l == 3)
+            l = 0; /*likely refactor*/
+
+        sgn1 = tri.point[l][Y] - tri.point[p][Y]; /*analyze one of the points with the other ones (0,1) (1,2) (2,0)*/
+        sgn2 = tri.point[l][X] - tri.point[p][X]; /*sgn1 Y sgn2 X ?*/
+
+        if (sgn_int(sgn1) == 0)
+        {                        /*the two points have the same Y coordinate*/
+            i = tri.point[p][Y]; /*point A is p*/
+            j = tri.point[p][X];
+            sgn2 = sgn_int(sgn2); /*which point has the biggest X coordinate ? +1->l    -1->p*/
+            do
+            { /*change the values for those specific pixels included between the two points*/
+                obj->appearance[i][j].m = -abs(obj->appearance[i][j].m);
+                j += sgn2;                  /*either go left or right depending on which of the points is rightmost*/
+            } while (j != tri.point[l][X]); /*continue until we reach point B (l)*/
+        }
+        else if (sgn_int(sgn2) == 0)
+        { /*they have the same X coordinate*/
+            i = tri.point[p][Y];
+            j = tri.point[p][X];
+            sgn1 = sgn_int(sgn1);
+            do
+            {
+                obj->appearance[i][j].m = -abs(obj->appearance[i][j].m);
+                i += sgn1;
+            } while (i != tri.point[l][Y]);
+        }
+        else if (abs(sgn1) > abs(sgn2))
+        { /*if obj1 != 0 and obj2 == 0 impossible because of previus condition?*/
+            i = tri.point[p][0];
+            j = tri.point[p][1];
+            k = 0;
+            do
+            {
+                obj->appearance[i][j].m = -abs(obj->appearance[i][j].m);
+                i += sgn_int(sgn1);
+                k += abs(sgn2);
+                if ((abs(k) << 1) > abs(sgn1))
+                {
+                    j += sgn_int(sgn2);
+                    k -= abs(sgn1);
+                }
+            } while ((i != tri.point[l][0]) || (j != tri.point[l][1]));
+            obj->appearance[i][j].m = -abs(obj->appearance[i][j].m);
+        }
+        else
+        { /*in case both coordinates of the points are different*/
+            i = tri.point[p][Y];
+            j = tri.point[p][X];
+            k = 0;
+            do
+            {
+                obj->appearance[i][j].m = -abs(obj->appearance[i][j].m);
+                j += sgn_int(sgn2);
+                k += abs(sgn1);
+                if ((abs(k) << 1) > abs(sgn2))
+                {
+                    i += sgn_int(sgn1);
+                    k -= abs(sgn2);
+                }
+            } while ((i != tri.point[l][0]) || (j != tri.point[l][1]));
+            obj->appearance[i][j].m = -abs(obj->appearance[i][j].m);
+        }
+    }
+    for (i = minx; i <= maxx; i++)
+    {
+        k = miny;
+        while (obj->appearance[i][k].m >= 0)
+            k++; /*checking which side the triangle is on???*/
+        l = maxy;
+        while (obj->appearance[i][l].m >= 0)
+            l--;
+        for (j = k; j <= l; j++)
+        { /*finally copying the pixel values*/
+            obj->appearance[i][j].m = 1 + abs(obj->appearance[i][j].m);
+            obj->appearance[i][j].R += tri.R;
+            obj->appearance[i][j].G += tri.G;
+            obj->appearance[i][j].B += tri.B;
+        }
+    }
+    return;
+}

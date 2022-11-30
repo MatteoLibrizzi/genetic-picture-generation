@@ -31,6 +31,7 @@ SOFTWARE.
 #include "types.h"
 #include "imageIO.h"
 #include "utils.h"
+#include "amoeba.h"
 
 
 
@@ -219,24 +220,6 @@ void delete_triangle(Amoeba *obj, int gen)/*removes triangle*/
 	return;
 }
 
-void evaluate(Amoeba *obj)
-{
-	int i, j, s, m1;
-	s=0;
-	for(i=0;i<height;i++){
-		for(j=0;j<width;j++){
-			m1=obj->appearance[i][j].m;
-			/*if (m1 != 1) printf("!= 1\n");
-			else printf("== 1\n");*/
-			/*distance between picture and current pixel value gives a score*/
-			s 	+= 	abs((obj->appearance[i][j].R)/m1	-pic[i][j].R)
-				+	abs((obj->appearance[i][j].G)/m1	-pic[i][j].G)
-				+	abs((obj->appearance[i][j].B)/m1	-pic[i][j].B);
-		}
-	}
-	obj->evaluation = s;
-	return;
-}
 
 void init_pool(){
 	int i, j, k, l;
@@ -258,7 +241,7 @@ void init_pool(){
 			pool[i].gene[j].B = rand()&255;
 			cover_triangle(&pool[i],j);
 		}
-		evaluate(&pool[i]);
+		evaluate(&pool[i],pic,height,width);
 	}
 	return;
 }
@@ -296,7 +279,7 @@ void iterate_generation(){
 			pool[tri[Population-1-i][1]].gene[l]=pool[j].gene[l];
 			cover_triangle(&pool[tri[Population-1-i][1]],l);
 		}
-		evaluate(&pool[tri[Population-1-i][1]]);
+		evaluate(&pool[tri[Population-1-i][1]],pic,height,width);
 	}
 	/* Mutation */
 	for(i=0;i<Population;i++){
@@ -336,7 +319,10 @@ void iterate_generation(){
 				}
 			}
 		}
-		if(l==1) evaluate(&pool[i]);
+		if(l==1) {
+			evaluateLocal(&pool[i]);
+		}
+			
 	}
 	iternum++;
 	return;
@@ -345,13 +331,14 @@ void iterate_generation(){
 int main(){
 	int i;
 	char c;
-	MLV_create_window("TP7", "TP7", 600, 600);
+	MLV_create_window("TP7", "TP7", 600, 300);
 	MLV_Image *im = MLV_load_image("geometric.ppm");
 	MLV_draw_image(im,0,0);
 	MLV_actualise_window();
 
 	init_pic("geometric.ppm",pic,&pixel_average,&height,&width);
 	init_pool();
+
 	best_now = pool[0];
 	iternum=0;
 
@@ -362,7 +349,7 @@ int main(){
 	
 	MLV_actualise_window();
 	MLV_Image *im2 = MLV_load_image("result.ppm");
-	MLV_draw_image(im2, 300, 300);
+	MLV_draw_image(im2, 300, 0);
 	MLV_actualise_window();
 	MLV_wait_seconds(20);
 
