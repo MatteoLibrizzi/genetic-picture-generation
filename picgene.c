@@ -35,10 +35,19 @@ SOFTWARE.
 #include "modules/pool.h"
 #include "modules/view.h"
 
-int main(){
-	int i;
-	char* imageInput = "images/geometric.ppm";
-	char* imageOutput = "images/result.ppm";
+int main(int argc, char** argv){
+	int genNumber = 10;
+	char *imageInput = "images/input.ppm";
+
+	if (argc <= 1) {
+		printf("Please insert arguments!\n");
+		printf("Running with default parametres:\ngenNumber = %d\ninputImagePath = %s\n",genNumber,imageInput);
+	} else if (argc <= 2) {
+		genNumber = strtol(argv[1],NULL,10);
+		printf("Missing argument!\nRunning with default image path:\ninputImagePath = %s\n",imageInput);
+	}
+	
+	char* imageOutput = "images/output.ppm";
 	Pixel pixel_average;
 	int height, width, iternum;
 
@@ -57,8 +66,7 @@ int main(){
 	Amoeba best_now = pool[0];
 
 	iternum=0;
-	scanf("%d",&i);
-	while(i>=iternum) {
+	while(genNumber>=iternum) {
 		iterate_generation(pool,pic,&best_now,height,width);
 		iternum++;
 	}
