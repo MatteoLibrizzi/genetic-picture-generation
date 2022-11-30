@@ -23,13 +23,12 @@ void evaluate(Amoeba *amoeba, Pixel *pic, int height, int width)
         }
     }
     amoeba->evaluation = s;
-    return;
 }
 
-void cover_triangle(Amoeba *obj, int gen, int height, int width)/*draws triangle according to the picture*/
+void cover_triangle(Amoeba *amoeba, int gen, int height, int width)/*draws triangle according to the picture*/
 {
     int i, j, k, l, p, maxx, minx, maxy, miny, sgn1, sgn2;
-    Triangle tri = obj->gene[gen];
+    Triangle tri = amoeba->gene[gen];
 
     maxx = 0; /*I think names should be swapped but until I can be sure I'm leaving it like this*/
     minx = height;
@@ -53,9 +52,7 @@ void cover_triangle(Amoeba *obj, int gen, int height, int width)/*draws triangle
 
     for (p = 0; p < 3; p++)
     {
-        l = (p + 1);
-        if (l == 3)
-            l = 0; /*likely refactor*/
+        l = (p + 1) % 3;
 
         sgn1 = tri.point[l][Y] - tri.point[p][Y]; /*analyze one of the points with the other ones (0,1) (1,2) (2,0)*/
         sgn2 = tri.point[l][X] - tri.point[p][X]; /*sgn1 Y sgn2 X ?*/
@@ -67,7 +64,7 @@ void cover_triangle(Amoeba *obj, int gen, int height, int width)/*draws triangle
             sgn2 = sgn_int(sgn2); /*which point has the biggest X coordinate ? +1->l    -1->p*/
             do
             { /*change the values for those specific pixels included between the two points*/
-                obj->appearance[i][j].m = -abs(obj->appearance[i][j].m);
+                amoeba->appearance[i][j].m = -abs(amoeba->appearance[i][j].m);
                 j += sgn2;                  /*either go left or right depending on which of the points is rightmost*/
             } while (j != tri.point[l][X]); /*continue until we reach point B (l)*/
         }
@@ -78,7 +75,7 @@ void cover_triangle(Amoeba *obj, int gen, int height, int width)/*draws triangle
             sgn1 = sgn_int(sgn1);
             do
             {
-                obj->appearance[i][j].m = -abs(obj->appearance[i][j].m);
+                amoeba->appearance[i][j].m = -abs(amoeba->appearance[i][j].m);
                 i += sgn1;
             } while (i != tri.point[l][Y]);
         }
@@ -89,7 +86,7 @@ void cover_triangle(Amoeba *obj, int gen, int height, int width)/*draws triangle
             k = 0;
             do
             {
-                obj->appearance[i][j].m = -abs(obj->appearance[i][j].m);
+                amoeba->appearance[i][j].m = -abs(amoeba->appearance[i][j].m);
                 i += sgn_int(sgn1);
                 k += abs(sgn2);
                 if ((abs(k) << 1) > abs(sgn1))
@@ -98,7 +95,7 @@ void cover_triangle(Amoeba *obj, int gen, int height, int width)/*draws triangle
                     k -= abs(sgn1);
                 }
             } while ((i != tri.point[l][0]) || (j != tri.point[l][1]));
-            obj->appearance[i][j].m = -abs(obj->appearance[i][j].m);
+            amoeba->appearance[i][j].m = -abs(amoeba->appearance[i][j].m);
         }
         else
         { /*in case both coordinates of the points are different*/
@@ -107,7 +104,7 @@ void cover_triangle(Amoeba *obj, int gen, int height, int width)/*draws triangle
             k = 0;
             do
             {
-                obj->appearance[i][j].m = -abs(obj->appearance[i][j].m);
+                amoeba->appearance[i][j].m = -abs(amoeba->appearance[i][j].m);
                 j += sgn_int(sgn2);
                 k += abs(sgn1);
                 if ((abs(k) << 1) > abs(sgn2))
@@ -116,33 +113,32 @@ void cover_triangle(Amoeba *obj, int gen, int height, int width)/*draws triangle
                     k -= abs(sgn2);
                 }
             } while ((i != tri.point[l][0]) || (j != tri.point[l][1]));
-            obj->appearance[i][j].m = -abs(obj->appearance[i][j].m);
+            amoeba->appearance[i][j].m = -abs(amoeba->appearance[i][j].m);
         }
     }
     for (i = minx; i <= maxx; i++)
     {
         k = miny;
-        while (obj->appearance[i][k].m >= 0)
+        while (amoeba->appearance[i][k].m >= 0)
             k++; /*checking which side the triangle is on???*/
         l = maxy;
-        while (obj->appearance[i][l].m >= 0)
+        while (amoeba->appearance[i][l].m >= 0)
             l--;
         for (j = k; j <= l; j++)
         { /*finally copying the pixel values*/
-            obj->appearance[i][j].m = 1 + abs(obj->appearance[i][j].m);
-            obj->appearance[i][j].R += tri.R;
-            obj->appearance[i][j].G += tri.G;
-            obj->appearance[i][j].B += tri.B;
+            amoeba->appearance[i][j].m = 1 + abs(amoeba->appearance[i][j].m);
+            amoeba->appearance[i][j].R += tri.R;
+            amoeba->appearance[i][j].G += tri.G;
+            amoeba->appearance[i][j].B += tri.B;
         }
     }
-    return;
 }
 
-void delete_triangle(Amoeba *obj, int gen, int height, int width) /*removes triangle*/
+void delete_triangle(Amoeba *amoeba, int gen, int height, int width) /*removes triangle*/
 {
     int i, j, k, l, p, maxx, minx, maxy, miny, sgn1, sgn2;
     Triangle tri;
-    tri = obj->gene[gen];
+    tri = amoeba->gene[gen];
     maxx = 0;
     minx = height;
     maxy = 0;
@@ -160,9 +156,7 @@ void delete_triangle(Amoeba *obj, int gen, int height, int width) /*removes tria
     }
     for (p = 0; p < 3; p++)
     {
-        l = p + 1;
-        if (l == 3)
-            l = 0;
+        l = (p + 1) % 3;
         sgn1 = tri.point[l][0] - tri.point[p][0];
         sgn2 = tri.point[l][1] - tri.point[p][1];
         if (sgn_int(sgn1) == 0)
@@ -172,7 +166,7 @@ void delete_triangle(Amoeba *obj, int gen, int height, int width) /*removes tria
             sgn2 = sgn_int(sgn2);
             do
             {
-                obj->appearance[i][j].m = -abs(obj->appearance[i][j].m);
+                amoeba->appearance[i][j].m = -abs(amoeba->appearance[i][j].m);
                 j += sgn2;
             } while (j != tri.point[l][1]);
         }
@@ -183,7 +177,7 @@ void delete_triangle(Amoeba *obj, int gen, int height, int width) /*removes tria
             sgn1 = sgn_int(sgn1);
             do
             {
-                obj->appearance[i][j].m = -abs(obj->appearance[i][j].m);
+                amoeba->appearance[i][j].m = -abs(amoeba->appearance[i][j].m);
                 i += sgn1;
             } while (i != tri.point[l][0]);
         }
@@ -194,7 +188,7 @@ void delete_triangle(Amoeba *obj, int gen, int height, int width) /*removes tria
             k = 0;
             do
             {
-                obj->appearance[i][j].m = -abs(obj->appearance[i][j].m);
+                amoeba->appearance[i][j].m = -abs(amoeba->appearance[i][j].m);
                 i += sgn_int(sgn1);
                 k += abs(sgn2);
                 if ((abs(k) << 1) > abs(sgn1))
@@ -203,7 +197,7 @@ void delete_triangle(Amoeba *obj, int gen, int height, int width) /*removes tria
                     k -= abs(sgn1);
                 }
             } while ((i != tri.point[l][0]) || (j != tri.point[l][1]));
-            obj->appearance[i][j].m = -abs(obj->appearance[i][j].m);
+            amoeba->appearance[i][j].m = -abs(amoeba->appearance[i][j].m);
         }
         else
         {
@@ -212,7 +206,7 @@ void delete_triangle(Amoeba *obj, int gen, int height, int width) /*removes tria
             k = 0;
             do
             {
-                obj->appearance[i][j].m = -abs(obj->appearance[i][j].m);
+                amoeba->appearance[i][j].m = -abs(amoeba->appearance[i][j].m);
                 j += sgn_int(sgn2);
                 k += abs(sgn1);
                 if ((abs(k) << 1) > abs(sgn2))
@@ -221,24 +215,23 @@ void delete_triangle(Amoeba *obj, int gen, int height, int width) /*removes tria
                     k -= abs(sgn2);
                 }
             } while ((i != tri.point[l][0]) || (j != tri.point[l][1]));
-            obj->appearance[i][j].m = -abs(obj->appearance[i][j].m);
+            amoeba->appearance[i][j].m = -abs(amoeba->appearance[i][j].m);
         }
     }
     for (i = minx; i <= maxx; i++)
     {
         k = miny;
-        while (obj->appearance[i][k].m >= 0)
+        while (amoeba->appearance[i][k].m >= 0)
             k++;
         l = maxy;
-        while (obj->appearance[i][l].m >= 0)
+        while (amoeba->appearance[i][l].m >= 0)
             l--;
         for (j = k; j <= l; j++)
         {
-            obj->appearance[i][j].m = abs(obj->appearance[i][j].m) - 1;
-            obj->appearance[i][j].R -= tri.R;
-            obj->appearance[i][j].G -= tri.G;
-            obj->appearance[i][j].B -= tri.B;
+            amoeba->appearance[i][j].m = abs(amoeba->appearance[i][j].m) - 1;
+            amoeba->appearance[i][j].R -= tri.R;
+            amoeba->appearance[i][j].G -= tri.G;
+            amoeba->appearance[i][j].B -= tri.B;
         }
     }
-    return;
 }

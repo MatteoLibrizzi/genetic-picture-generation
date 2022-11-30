@@ -30,7 +30,6 @@ void init_pool(Amoeba *pool, Pixel* pic, Pixel pixel_average, int height, int wi
         }
         evaluate(&pool[i], pic, height, width);
     }
-    return;
 }
 
 void iterate_generation(Amoeba *pool,Pixel* pic, Amoeba *best_now, int height, int width){
