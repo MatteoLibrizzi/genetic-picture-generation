@@ -39,30 +39,40 @@ int main(int argc, char** argv){
 	int genNumber = 10;
 	char *imageInputPath = "images/input.ppm";
 
-	if (argc <= 1) {
+	if (argc < 2) {
 		printf("Please insert arguments!\n");
 		printf("Running with default parametres:\ngenNumber = %d\ninputImagePath = %s\n",genNumber,imageInputPath);
-	} else if (argc <= 2) {
+	} else if (argc == 2) {
 		genNumber = strtol(argv[1],NULL,10);
 		printf("Missing argument!\nRunning with default image path:\ninputImagePath = %s\n",imageInputPath);
+	} else if (argc == 3) {
+		genNumber = strtol(argv[1], NULL, 10);
+		imageInputPath = argv[2];
 	}
 	
-	char* imageOutputPath = "images/output.ppm";
+	char* imageOutputPath = "images/output.bmp";
 	Pixel pixel_average;
 	int height, width, iternum;
 
 	Amoeba* pool = (Amoeba*) malloc(sizeof(Amoeba)*Population);/*malloc is absolutely necessary here :c*/
 
-	MLV_create_window("TP7", "TP7", 1000, 1000);
+	MLV_create_window("TP7", "TP7", 1, 1);
 
 	MLV_Image *inputImage = MLV_load_image(imageInputPath);
 	MLV_Image *outputImage;
+	MLV_Image *blackImage = MLV_load_image("images/black.jpg");
 
 	MLV_get_image_size(inputImage,&width,&height);
 
-	MLV_change_window_size(width*2,height);
+	if (height > MAXHEIGHT || width > MAXWIDTH) {
+		printf("Image is too big, edit the constats in const.h to fit\n");
+		exit(1);
+	}
 
-	drawImage(inputImage,0,0);
+	MLV_change_window_size(width*2,height*2);
+
+	MLV_draw_image(inputImage, 0, 0);
+	MLV_actualise_window();
 
 	Pixel pic[height][width];
 
@@ -76,12 +86,24 @@ int main(int argc, char** argv){
 		iterate_generation(pool,pic,&best_now,height,width);
 		
 		getBestImageNow(&outputImage,best_now,height,width);
-		drawImage(outputImage,width,0);
+
+		MLV_draw_image(outputImage, width, 0);
+		MLV_actualise_window();
+
+		if (!iternum % 3)
+			MLV_draw_image(blackImage, width, 0);
 
 		iternum++;
 	}
 	print_info(best_now, iternum);
-	print_best(best_now, height,width,imageOutputPath);
+
+	if (MLV_save_image_as_bmp(outputImage, imageOutputPath)) {
+		printf("ERROR couldn't save!\n");
+	}
+
+	MLV_Image* finalOutput = MLV_load_image(imageOutputPath);
+	MLV_draw_image(finalOutput,0,height);
+	MLV_actualise_window();
 
 	MLV_wait_seconds(10);
 

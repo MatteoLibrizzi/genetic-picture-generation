@@ -1,10 +1,7 @@
 #ifndef __types_
 #define __types_
 
-#define GeneNum 100
-#define CommutateNum 10
-#define Population 30
-#define Mutation_Rate_Mask 2047
+#include "const.h"
 
 typedef enum coordinate
 {
@@ -31,7 +28,7 @@ typedef struct triangle
 typedef struct amoeba
 {
     Triangle gene[GeneNum];
-    Pixel appearance[300][300];
+    Pixel appearance[MAXHEIGHT][MAXWIDTH];
     int evaluation;
 } Amoeba;
 

@@ -20,7 +20,7 @@ void drawImage(MLV_Image* image,int x, int y) {
     MLV_actualise_window();
 }
 
-void getBestImageNow(MLV_Image** image, Amoeba best_now,int height,int width) {
+void getBestImageNow(MLV_Image** image, Amoeba best_now, int height, int width) {
     *image = MLV_create_image(width,height);
 
     int i, j;

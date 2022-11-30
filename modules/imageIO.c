@@ -36,7 +36,7 @@ void init_pic(MLV_Image *img, Pixel *pic, Pixel *pixel_average, int height, int 
             int *m = &((pic + i * height + j)->m);
 
             MLV_get_pixel_on_image(img, i, j, r, g, b, m);
-
+            
             rAcc += *r;
             gAcc += *g;
             bAcc += *b;
@@ -56,11 +56,9 @@ void init_pic(MLV_Image *img, Pixel *pic, Pixel *pixel_average, int height, int 
 void print_best(Amoeba best_now, int height, int width, char *imageOutput)
 {
     int i, j, k, l, r, g, b, x;
-    FILE *fio;
-    fio = fopen(imageOutput, "w");
-    fprintf(fio, "P3\n");
-    fprintf(fio, "%d %d\n", height, width);
-    fprintf(fio, "255\n");
+
+    MLV_Image* out = MLV_create_image(width,height);
+
     for (i = 0; i < height; i++)
     {
         for (j = 0; j < width; j++)
@@ -76,10 +74,12 @@ void print_best(Amoeba best_now, int height, int width, char *imageOutput)
             b = best_now.appearance[i][j].B;
             b /= x;
 
-            fprintf(fio, "%d %d %d\n", r, g, b);
+            MLV_Color color = MLV_rgba(r,g,b,x);
+
+            MLV_set_pixel_on_image(i,j,color,out);
         }
     }
-    fclose(fio);
+    MLV_save_image_as_bmp(out,imageOutput);
 }
 
 void print_info(Amoeba best_now, int iternum)
