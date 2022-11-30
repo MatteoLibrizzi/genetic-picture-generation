@@ -2,6 +2,7 @@
 #include "types.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <MLV/MLV_all.h>
 
 void pic_getDimensions(char *imgPPM, int *height, int *width)
 {
@@ -18,49 +19,38 @@ void pic_getDimensions(char *imgPPM, int *height, int *width)
     fclose(fio);
 }
 
-void init_pic(char *imgPPM, Pixel *pic, Pixel *pixel_average, int height, int width)
+void init_pic(MLV_Image *img, Pixel *pic, Pixel *pixel_average, int height, int width)
 {
-    FILE *fio;
     int i, j, k, r, g, b;
-    char *trash;
-    int height2, width2;
-    fio = fopen(imgPPM, "r");
-
-    fscanf(fio, "%s", &trash); /* read P3 string */
-
-    fscanf(fio, "%d%d", &height2, &width2);
-
-    if (height2 != height || width2 != width)
-        exit(1);
 
     int pixelCounter;
-    int rAcc = 0, gAcc = 0, bAcc = 0;
+    int rAcc = 0, gAcc = 0, bAcc = 0, mAcc = 0;
 
     for (i = 0; i < height; i++)
     {
         for (j = 0; j < width; j++)
         {
-            fscanf(fio, "%d%d%d", &r, &g, &b);
-            (pic + i * height + j)->R = r;
-            rAcc += r;
+            int *r = &((pic + i * height + j)->R);
+            int *g = &((pic + i * height + j)->G);
+            int *b = &((pic + i * height + j)->B);
+            int *m = &((pic + i * height + j)->m);
 
-            (pic + i * height + j)->G = g;
-            gAcc += g;
+            MLV_get_pixel_on_image(img, i, j, r, g, b, m);
 
-            (pic + i * height + j)->B = b;
-            bAcc += b;
-
-            (pic + i * height + j)->m = 1;
+            rAcc += *r;
+            gAcc += *g;
+            bAcc += *b;
+            mAcc += *m;
 
             pixelCounter++;
         }
     }
-    fclose(fio);
     rAcc /= pixelCounter;
     gAcc /= pixelCounter;
     bAcc /= pixelCounter;
+    mAcc /= pixelCounter;
 
-    *pixel_average = (Pixel){rAcc, gAcc, bAcc, 1};
+    *pixel_average = (Pixel){rAcc, gAcc, bAcc, mAcc};
 }
 
 void print_best(Amoeba best_now, int height, int width, char *imageOutput)

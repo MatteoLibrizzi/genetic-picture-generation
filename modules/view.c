@@ -3,14 +3,6 @@
 
 #include <MLV/MLV_all.h>
 
-MLV_Image *drawInputImage(char *imageInput, int height, int width)
-{
-    MLV_create_window("TP7", "TP7", width*2, height);
-    MLV_Image *im = MLV_load_image(imageInput);
-    MLV_draw_image(im, 0, 0);
-    MLV_actualise_window();
-    return im;
-}
 
 void drawOutputImageThenFree(char* imageOutput,int height, int width, MLV_Image* imageInput) {
     MLV_Image *im2 = MLV_load_image(imageOutput);
@@ -23,8 +15,8 @@ void drawOutputImageThenFree(char* imageOutput,int height, int width, MLV_Image*
     MLV_free_window();
 }
 
-void drawImage(MLV_Image* image, int height, int width) {
-    MLV_draw_image(image, width, 0);
+void drawImage(MLV_Image* image,int x, int y) {
+    MLV_draw_image(image, x, y);
     MLV_actualise_window();
 }
 

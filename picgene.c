@@ -53,25 +53,32 @@ int main(int argc, char** argv){
 
 	Amoeba* pool = (Amoeba*) malloc(sizeof(Amoeba)*Population);/*malloc is absolutely necessary here :c*/
 
-	pic_getDimensions(imageInputPath, &height, &width);
-	Pixel pic[height][width];
+	MLV_create_window("TP7", "TP7", 1000, 1000);
 
-
-	MLV_Image *inputImage = drawInputImage(imageInputPath, height, width);
+	MLV_Image *inputImage = MLV_load_image(imageInputPath);
 	MLV_Image *outputImage;
 
+	MLV_get_image_size(inputImage,&width,&height);
 
-	init_pic(imageInputPath, pic, &pixel_average, height, width);
+	MLV_change_window_size(width*2,height);
+
+	drawImage(inputImage,0,0);
+
+	Pixel pic[height][width];
+
+	init_pic(inputImage, pic, &pixel_average, height, width);
 	init_pool(pool,pic, pixel_average, height,width);
 
 	Amoeba best_now = pool[0];
 
 	iternum=0;
-	while(genNumber>=iternum) {
+	while(genNumber>iternum) {
 		iterate_generation(pool,pic,&best_now,height,width);
-		iternum++;
+		
 		getBestImageNow(&outputImage,best_now,height,width);
-		drawImage(outputImage,height,width);
+		drawImage(outputImage,width,0);
+
+		iternum++;
 	}
 	print_info(best_now, iternum);
 	print_best(best_now, height,width,imageOutputPath);
