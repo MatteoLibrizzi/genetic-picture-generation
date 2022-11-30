@@ -28,33 +28,9 @@ SOFTWARE.
 #include <MLV/MLV_all.h>
 #include "io.h"
 #include <time.h>
+#include "types.h"
+#include "imageIO.h"
 
-#define GeneNum 100
-#define CommutateNum 10
-#define Population 30
-#define Mutation_Rate_Mask 2047
-
-typedef enum coordinate {Y, X} COORDINATE;
-
-typedef struct pixel{
-	int R;
-	int G;
-	int B;
-	int m;
-} Pixel;
-
-typedef struct triangle{
-	int point[3][2];
-	int R;
-	int G;
-	int B;
-} Triangle;
-
-typedef struct amoeba{
-	Triangle gene[GeneNum];
-	Pixel appearance[300][300];
-	int evaluation;
-} Amoeba;
 
 
 
@@ -63,46 +39,6 @@ Pixel pixel_average;
 int height, width, iternum;
 Amoeba pool[Population];
 Amoeba best_now;
-
-void init_pic(){
-	FILE* fio;
-	int i,j,k,r,g,b;
-	char* trash;
-	fio=fopen("geometric.ppm","r");
-
-	fscanf(fio, "%s", &trash);/* read P3 string */
-
-	fscanf(fio,"%d%d", &height, &width);
-	printf("%d %d\n",height,width);
-
-	int pixelCounter;
-	int rAcc = 0, gAcc = 0, bAcc = 0;
-
-	for(i=0;i<height;i++){
-		for(j=0;j<width;j++){
-			fscanf(fio,"%d%d%d",&r,&g,&b);
-			pic[i][j].R = r;
-			rAcc += r;
-
-			pic[i][j].G = g;
-			gAcc += g;
-
-			pic[i][j].B = b;
-			bAcc += b;
-
-			pic[i][j].m = 1;
-
-			pixelCounter++;
-		}
-	}
-	fclose(fio);
-	rAcc /= pixelCounter;
-	gAcc /= pixelCounter;
-	bAcc /= pixelCounter;
-
-	pixel_average = (Pixel) {rAcc, gAcc, bAcc, 1};
-	return;
-}
 
 int sgn_int(int a){
 	return a > 0 ? 1 : (a < 0 ? -1 : 0);
@@ -330,41 +266,6 @@ void init_pool(){
 	return;
 }
 
-void print_best(){
-	int i, j, k, l, r, g, b, x;
-	FILE* fio;
-	fio=fopen("result.ppm","w");
-	fprintf(fio,"P3\n");
-	fprintf(fio, "%d %d\n", height, width);
-	fprintf(fio, "255\n");
-	/*fprintf(fio,"%d %d %d %d %d\n",height,width,GeneNum,iternum,best_now.evaluation);
-
-	fprintf(fio,"%d %d %d\n",pixel_average.R,pixel_average.G,pixel_average.B);
-	for(i=0;i<GeneNum;i++){
-		fprintf(fio,"%d %d %d %d %d %d %d %d %d\n", best_now.gene[i].point[0][0],best_now.gene[i].point[0][1],best_now.gene[i].point[1][0],best_now.gene[i].point[1][1],best_now.gene[i].point[2][0],best_now.gene[i].point[2][1],best_now.gene[i].R,best_now.gene[i].G,best_now.gene[i].B);
-	}
-	*/
-	for(i=0;i<height;i++){
-		for(j=0;j<width;j++){
-			r=best_now.appearance[i][j].R;
-			x=(best_now.appearance[i][j].m);
-			r/=x;
-			g=best_now.appearance[i][j].G;
-			g/=x;
-			b=best_now.appearance[i][j].B;
-			b/=x;
-			fprintf(fio,"%d %d %d\n",r,g,b);
-		}
-	}
-	fclose(fio);
-	return;
-}
-
-void print_info(){
-	printf("Generation: %d. Best evaluation: %d\n", iternum, best_now.evaluation);
-	return;
-}
-
 void iterate_generation(){
 	int i, j, k, l;
 	int tri[Population][2];
@@ -453,15 +354,15 @@ int main(){
 	MLV_actualise_window();
 	MLV_wait_seconds(1);
 
-	init_pic();
+	init_pic("geometric.ppm",pic,&pixel_average,&height,&width);
 	init_pool();
 	best_now = pool[0];
 	iternum=0;
 
 	scanf("%d",&i);
 	while(i>=iternum) iterate_generation();
-	print_info();
-	print_best();
+	print_info(best_now, iternum);
+	print_best(best_now, height,width);
 	
 	MLV_actualise_window();
 	MLV_Image *im2 = MLV_load_image("result.ppm");
