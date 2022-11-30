@@ -33,7 +33,7 @@ void init_pool(Amoeba *pool, Pixel* pic, Pixel pixel_average, int height, int wi
     return;
 }
 
-void iterate_generation(Amoeba *pool,Pixel* pic, Amoeba *best_now, int *iternum, int height, int width){
+void iterate_generation(Amoeba *pool,Pixel* pic, Amoeba *best_now, int height, int width){
     int i, j, k, l;
     int tri[Population][2];
     /* sort by evaluation */
@@ -133,6 +133,4 @@ void iterate_generation(Amoeba *pool,Pixel* pic, Amoeba *best_now, int *iternum,
             evaluate(&pool[i], pic, height, width);
         }
     }
-    (*iternum)++;
-    return;
 }

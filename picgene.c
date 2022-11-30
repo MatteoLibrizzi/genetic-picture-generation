@@ -55,10 +55,13 @@ int main(){
 	init_pool(pool,pic, pixel_average, height,width);
 
 	Amoeba best_now = pool[0];
+
 	iternum=0;
 	scanf("%d",&i);
-
-	while(i>=iternum) iterate_generation(pool,pic,&best_now,&iternum,height,width);
+	while(i>=iternum) {
+		iterate_generation(pool,pic,&best_now,height,width);
+		iternum++;
+	}
 	print_info(best_now, iternum);
 	print_best(best_now, height,width,imageOutput);
 	
