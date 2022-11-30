@@ -137,3 +137,108 @@ void cover_triangle(Amoeba *obj, int gen, int height, int width)/*draws triangle
     }
     return;
 }
+
+void delete_triangle(Amoeba *obj, int gen, int height, int width) /*removes triangle*/
+{
+    int i, j, k, l, p, maxx, minx, maxy, miny, sgn1, sgn2;
+    Triangle tri;
+    tri = obj->gene[gen];
+    maxx = 0;
+    minx = height;
+    maxy = 0;
+    miny = width;
+    for (i = 0; i < 3; i++)
+    {
+        if (tri.point[i][0] > maxx)
+            maxx = tri.point[i][0];
+        if (tri.point[i][0] < minx)
+            minx = tri.point[i][0];
+        if (tri.point[i][1] > maxy)
+            maxy = tri.point[i][1];
+        if (tri.point[i][1] < miny)
+            miny = tri.point[i][1];
+    }
+    for (p = 0; p < 3; p++)
+    {
+        l = p + 1;
+        if (l == 3)
+            l = 0;
+        sgn1 = tri.point[l][0] - tri.point[p][0];
+        sgn2 = tri.point[l][1] - tri.point[p][1];
+        if (sgn_int(sgn1) == 0)
+        {
+            i = tri.point[p][0];
+            j = tri.point[p][1];
+            sgn2 = sgn_int(sgn2);
+            do
+            {
+                obj->appearance[i][j].m = -abs(obj->appearance[i][j].m);
+                j += sgn2;
+            } while (j != tri.point[l][1]);
+        }
+        else if (sgn_int(sgn2) == 0)
+        {
+            i = tri.point[p][0];
+            j = tri.point[p][1];
+            sgn1 = sgn_int(sgn1);
+            do
+            {
+                obj->appearance[i][j].m = -abs(obj->appearance[i][j].m);
+                i += sgn1;
+            } while (i != tri.point[l][0]);
+        }
+        else if (abs(sgn1) > abs(sgn2))
+        {
+            i = tri.point[p][0];
+            j = tri.point[p][1];
+            k = 0;
+            do
+            {
+                obj->appearance[i][j].m = -abs(obj->appearance[i][j].m);
+                i += sgn_int(sgn1);
+                k += abs(sgn2);
+                if ((abs(k) << 1) > abs(sgn1))
+                {
+                    j += sgn_int(sgn2);
+                    k -= abs(sgn1);
+                }
+            } while ((i != tri.point[l][0]) || (j != tri.point[l][1]));
+            obj->appearance[i][j].m = -abs(obj->appearance[i][j].m);
+        }
+        else
+        {
+            i = tri.point[p][0];
+            j = tri.point[p][1];
+            k = 0;
+            do
+            {
+                obj->appearance[i][j].m = -abs(obj->appearance[i][j].m);
+                j += sgn_int(sgn2);
+                k += abs(sgn1);
+                if ((abs(k) << 1) > abs(sgn2))
+                {
+                    i += sgn_int(sgn1);
+                    k -= abs(sgn2);
+                }
+            } while ((i != tri.point[l][0]) || (j != tri.point[l][1]));
+            obj->appearance[i][j].m = -abs(obj->appearance[i][j].m);
+        }
+    }
+    for (i = minx; i <= maxx; i++)
+    {
+        k = miny;
+        while (obj->appearance[i][k].m >= 0)
+            k++;
+        l = maxy;
+        while (obj->appearance[i][l].m >= 0)
+            l--;
+        for (j = k; j <= l; j++)
+        {
+            obj->appearance[i][j].m = abs(obj->appearance[i][j].m) - 1;
+            obj->appearance[i][j].R -= tri.R;
+            obj->appearance[i][j].G -= tri.G;
+            obj->appearance[i][j].B -= tri.B;
+        }
+    }
+    return;
+}
