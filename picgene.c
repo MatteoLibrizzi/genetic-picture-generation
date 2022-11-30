@@ -37,30 +37,31 @@ SOFTWARE.
 
 int main(int argc, char** argv){
 	int genNumber = 10;
-	char *imageInput = "images/input.ppm";
+	char *imageInputPath = "images/input.ppm";
 
 	if (argc <= 1) {
 		printf("Please insert arguments!\n");
-		printf("Running with default parametres:\ngenNumber = %d\ninputImagePath = %s\n",genNumber,imageInput);
+		printf("Running with default parametres:\ngenNumber = %d\ninputImagePath = %s\n",genNumber,imageInputPath);
 	} else if (argc <= 2) {
 		genNumber = strtol(argv[1],NULL,10);
-		printf("Missing argument!\nRunning with default image path:\ninputImagePath = %s\n",imageInput);
+		printf("Missing argument!\nRunning with default image path:\ninputImagePath = %s\n",imageInputPath);
 	}
 	
-	char* imageOutput = "images/output.ppm";
+	char* imageOutputPath = "images/output.ppm";
 	Pixel pixel_average;
 	int height, width, iternum;
 
 	Amoeba* pool = (Amoeba*) malloc(sizeof(Amoeba)*Population);/*malloc is absolutely necessary here :c*/
 
-	pic_getDimensions(imageInput, &height, &width);
+	pic_getDimensions(imageInputPath, &height, &width);
 	Pixel pic[height][width];
 
 
-	MLV_Image *im = drawInputImage(imageInput, height, width);
+	MLV_Image *inputImage = drawInputImage(imageInputPath, height, width);
+	MLV_Image *outputImage;
 
 
-	init_pic(imageInput, pic, &pixel_average, height, width);
+	init_pic(imageInputPath, pic, &pixel_average, height, width);
 	init_pool(pool,pic, pixel_average, height,width);
 
 	Amoeba best_now = pool[0];
@@ -69,12 +70,17 @@ int main(int argc, char** argv){
 	while(genNumber>=iternum) {
 		iterate_generation(pool,pic,&best_now,height,width);
 		iternum++;
+		getBestImageNow(&outputImage,best_now,height,width);
+		drawImage(outputImage,height,width);
 	}
 	print_info(best_now, iternum);
-	print_best(best_now, height,width,imageOutput);
-	
-	drawOutputImageThenFree(imageOutput,height,width,im);
+	print_best(best_now, height,width,imageOutputPath);
 
+	MLV_wait_seconds(10);
+
+	MLV_free_image(inputImage);
+	MLV_free_image(outputImage);
+	MLV_free_window();
 	free(pool);
 	return 0;
 }
