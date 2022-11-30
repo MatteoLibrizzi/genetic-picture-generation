@@ -1,8 +1,9 @@
 
 #include "types.h"
 #include <stdio.h>
+#include <stdlib.h>
 
-void init_pic(char *imgPPM, Pixel *pic, Pixel *pixel_average, int* height, int* width)
+void pic_getDimensions(char *imgPPM, int *height, int *width)
 {
     FILE *fio;
     int i, j, k, r, g, b;
@@ -14,24 +15,42 @@ void init_pic(char *imgPPM, Pixel *pic, Pixel *pixel_average, int* height, int* 
     fscanf(fio, "%d%d", height, width);
     printf("%d %d\n", *height, *width);
 
+    fclose(fio);
+}
+
+    void init_pic(char *imgPPM, Pixel *pic, Pixel *pixel_average, int height, int width)
+{
+    FILE *fio;
+    int i, j, k, r, g, b;
+    char *trash;
+    int height2,width2;
+    fio = fopen(imgPPM, "r");
+
+    fscanf(fio, "%s", &trash); /* read P3 string */
+
+    fscanf(fio, "%d%d", &height2, &width2);
+    
+    if (height2 != height || width2 != width)
+        exit(1);
+
     int pixelCounter;
     int rAcc = 0, gAcc = 0, bAcc = 0;
 
-    for (i = 0; i < *height; i++)
+    for (i = 0; i < height; i++)
     {
-        for (j = 0; j < *width; j++)
+        for (j = 0; j < width; j++)
         {
             fscanf(fio, "%d%d%d", &r, &g, &b);
-            (pic + i * *height + j)->R = r;
+            (pic + i * height + j)->R = r;
             rAcc += r;
 
-            (pic + i * *height + j)->G = g;
+            (pic + i * height + j)->G = g;
             gAcc += g;
 
-            (pic + i * *height + j)->B = b;
+            (pic + i * height + j)->B = b;
             bAcc += b;
 
-            (pic + i * *height+ j)->m = 1;
+            (pic + i * height+ j)->m = 1;
 
             pixelCounter++;
         }
@@ -45,11 +64,11 @@ void init_pic(char *imgPPM, Pixel *pic, Pixel *pixel_average, int* height, int* 
     return;
 }
 
-void print_best(Amoeba best_now, int height, int width)
+void print_best(Amoeba best_now, int height, int width, char* imageOutput)
 {
     int i, j, k, l, r, g, b, x;
     FILE *fio;
-    fio = fopen("images/result.ppm", "w");
+    fio = fopen(imageOutput, "w");
     fprintf(fio, "P3\n");
     fprintf(fio, "%d %d\n", height, width);
     fprintf(fio, "255\n");

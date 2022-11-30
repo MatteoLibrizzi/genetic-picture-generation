@@ -33,44 +33,37 @@ SOFTWARE.
 #include "modules/utils.h"
 #include "modules/amoeba.h"
 #include "modules/pool.h"
-
-Pixel pic[300][300];
-Pixel pixel_average;
-int height, width, iternum;
-Amoeba pool[Population];
-Amoeba best_now;
-
+#include "modules/view.h"
 
 int main(){
 	int i;
-	char c;
-	MLV_create_window("TP7", "TP7", 600, 300);
-	MLV_Image *im = MLV_load_image("images/geometric.ppm");
-	MLV_draw_image(im,0,0);
-	MLV_actualise_window();
+	char* imageInput = "images/geometric.ppm";
+	char* imageOutput = "images/result.ppm";
+	Pixel pixel_average;
+	int height, width, iternum;
 
-	init_pic("images/geometric.ppm",pic,&pixel_average,&height,&width);
+	Amoeba* pool = (Amoeba*) malloc(sizeof(Amoeba)*Population);/*malloc is absolutely necessary here :c*/
+
+	pic_getDimensions(imageInput, &height, &width);
+	Pixel pic[height][width];
+
+
+	MLV_Image *im = drawInputImage(imageInput, height, width);
+
+
+	init_pic(imageInput, pic, &pixel_average, height, width);
 	init_pool(pool,pic, pixel_average, height,width);
 
-
-	best_now = pool[0];
+	Amoeba best_now = pool[0];
 	iternum=0;
 	scanf("%d",&i);
 
 	while(i>=iternum) iterate_generation(pool,pic,&best_now,&iternum,height,width);
 	print_info(best_now, iternum);
-	print_best(best_now, height,width);
+	print_best(best_now, height,width,imageOutput);
 	
-	MLV_actualise_window();
-	MLV_Image *im2 = MLV_load_image("images/result.ppm");
-	MLV_draw_image(im2, 300, 0);
-	MLV_actualise_window();
-	MLV_wait_seconds(20);
+	drawOutputImageThenFree(imageOutput,height,width,im);
 
-
-	MLV_free_image(im);
-	MLV_free_image(im2);
-	MLV_free_window();
-
+	free(pool);
 	return 0;
 }
