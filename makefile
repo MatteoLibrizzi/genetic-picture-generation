@@ -6,13 +6,13 @@ main: picgene.o imageIO.o utils.o amoeba.o
 picgene.o: picgene.c
 	gcc -c $^ $(flags)
 
-imageIO.o: imageIO.c
+imageIO.o: modules/imageIO.c
 	gcc -c $^ $(flags)
 
-utils.o: utils.c
+utils.o: modules/utils.c
 	gcc -c $^ $(flags)
 
-amoeba.o: amoeba.c
+amoeba.o: modules/amoeba.c
 	gcc -c $^ $(flags)
 
 clean:

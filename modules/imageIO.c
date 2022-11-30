@@ -49,7 +49,7 @@ void print_best(Amoeba best_now, int height, int width)
 {
     int i, j, k, l, r, g, b, x;
     FILE *fio;
-    fio = fopen("result.ppm", "w");
+    fio = fopen("images/result.ppm", "w");
     fprintf(fio, "P3\n");
     fprintf(fio, "%d %d\n", height, width);
     fprintf(fio, "255\n");

@@ -28,13 +28,10 @@ SOFTWARE.
 #include <MLV/MLV_all.h>
 #include "io.h"
 #include <time.h>
-#include "types.h"
-#include "imageIO.h"
-#include "utils.h"
-#include "amoeba.h"
-
-
-
+#include "modules/types.h"
+#include "modules/imageIO.h"
+#include "modules/utils.h"
+#include "modules/amoeba.h"
 
 Pixel pic[300][300];
 Pixel pixel_average;
@@ -154,11 +151,11 @@ int main(){
 	int i;
 	char c;
 	MLV_create_window("TP7", "TP7", 600, 300);
-	MLV_Image *im = MLV_load_image("geometric.ppm");
+	MLV_Image *im = MLV_load_image("images/geometric.ppm");
 	MLV_draw_image(im,0,0);
 	MLV_actualise_window();
 
-	init_pic("geometric.ppm",pic,&pixel_average,&height,&width);
+	init_pic("images/geometric.ppm",pic,&pixel_average,&height,&width);
 	init_pool();
 
 	best_now = pool[0];
@@ -170,7 +167,7 @@ int main(){
 	print_best(best_now, height,width);
 	
 	MLV_actualise_window();
-	MLV_Image *im2 = MLV_load_image("result.ppm");
+	MLV_Image *im2 = MLV_load_image("images/result.ppm");
 	MLV_draw_image(im2, 300, 0);
 	MLV_actualise_window();
 	MLV_wait_seconds(20);
