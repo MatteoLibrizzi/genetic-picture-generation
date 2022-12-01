@@ -56,6 +56,7 @@ int main(int argc, char **argv)
 	{
 		genNumber = strtol(argv[1], NULL, 10);
 		imageInputPath = argv[2];
+		printf("Using arguments:\ngenNumber = %d\ninputImagePath = %s\n",genNumber,imageInputPath);
 	}
 
 	char *imageOutputPath = "images/output.bmp";
@@ -99,7 +100,6 @@ int main(int argc, char **argv)
 
 			MLV_draw_image(outputImage, width, 0);
 			MLV_actualise_window();
-			
 		}
 
 		iternum++;
@@ -121,6 +121,5 @@ int main(int argc, char **argv)
 	MLV_free_image(inputImage);
 	MLV_free_image(outputImage);
 	MLV_free_window();
-	free(pool);
 	return 0;
 }
