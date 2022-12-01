@@ -84,7 +84,7 @@ int main(int argc, char **argv)
 	MLV_actualise_window();
 	
 	init_pic(inputImage, pic, &pixel_average, height, width);
-	init_pool(pool, pic, pixel_average, height, width);printf("Init\n");
+	init_pool(pool, pic, pixel_average, height, width);
 
 
 	Amoeba best_now = pool[0];
@@ -93,7 +93,7 @@ int main(int argc, char **argv)
 	while (genNumber > iternum)
 	{
 		iterate_generation(pool, pic, &best_now, height, width);
-		if (!(iternum % 1000))
+		if (!(iternum % 100))
 		{
 			getBestImageNow(&outputImage,best_now,height,width);
 
