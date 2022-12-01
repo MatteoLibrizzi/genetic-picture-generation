@@ -4,22 +4,8 @@
 #include <stdlib.h>
 #include <MLV/MLV_all.h>
 
-void pic_getDimensions(char *imgPPM, int *height, int *width)
-{
-    FILE *fio;
-    int i, j, k, r, g, b;
-    char *trash;
-    fio = fopen(imgPPM, "r");
 
-    fscanf(fio, "%s", &trash); /* read P3 string */
-
-    fscanf(fio, "%d%d", height, width);
-    printf("%d %d\n", *height, *width);
-
-    fclose(fio);
-}
-
-void init_pic(MLV_Image *img, Pixel* pic, Pixel *pixel_average, int height, int width)
+void init_pic(MLV_Image *img, Pixel pic[][300], Pixel *pixel_average, int height, int width)
 {
 
     int i, j, k, r, g, b;
@@ -31,15 +17,15 @@ void init_pic(MLV_Image *img, Pixel* pic, Pixel *pixel_average, int height, int 
     {
         for (j = 0; j < width; j++)
         {
-            int *r = &((pic + i * width + j)->R);
-            int *g = &((pic + i * width + j)->G);
-            int *b = &((pic + i * width + j)->B);
-            (pic + i * width + j)->m = 1;
+            int *r = &(pic[i][j].R);
+            int *g = &(pic[i][j].G);
+            int *b = &(pic[i][j].B);
+            pic[i][j].m = 1;
             int m;
 
-            MLV_get_pixel_on_image(img, i, j, r, g, b, &m);
+            MLV_get_pixel_on_image(img, i, j, r, g, b, NULL);
 
-            m = (pic + i * height + j)->m;
+            m = 1;
 
             rAcc += *r;
             gAcc += *g;

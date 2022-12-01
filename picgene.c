@@ -91,19 +91,34 @@ int main(int argc, char **argv)
 	Amoeba best_now = pool[0];
 
 	iternum = 0;
+
+	clock_t start, end;
+	double cpu_time_used;
+
 	while (genNumber > iternum)
 	{
+		start = clock();
+
 		iterate_generation(pool, pic, &best_now, height, width);
+		
+		end = clock();
+		cpu_time_used += ((double)(end - start)) / CLOCKS_PER_SEC;
+
 		if (!(iternum % 100))
 		{
 			getBestImageNow(&outputImage,best_now,height,width);
 
 			MLV_draw_image(outputImage, width, 0);
 			MLV_actualise_window();
+
+			printf("Evaluation: %d\n",best_now.evaluation);
 		}
 
 		iternum++;
 	}
+
+	printf("avg time spent iterating %f\n", cpu_time_used/iternum);
+
 	print_info(best_now, iternum);
 	getBestImageNow(&outputImage, best_now, height, width);
 

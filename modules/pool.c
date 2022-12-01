@@ -3,7 +3,8 @@
 #include "amoeba.h"
 #include <stdlib.h>
 
-void init_pool(Amoeba *pool, Pixel* pic, Pixel pixel_average, int height, int width){
+void init_pool(Amoeba *pool, Pixel *pic, Pixel pixel_average, int height, int width)
+{
     int i, j, k, l;
     srand(time(NULL));
 
@@ -28,11 +29,12 @@ void init_pool(Amoeba *pool, Pixel* pic, Pixel pixel_average, int height, int wi
             pool[i].gene[j].B = rand() & 255;
             cover_triangle(&pool[i], j, height, width);
         }
-        /*evaluate(&pool[i], pic, height, width);*/
+        evaluate(&pool[i], pic, height, width);
     }
 }
 
-void iterate_generation(Amoeba *pool,Pixel* pic, Amoeba *best_now, int height, int width){
+void iterate_generation(Amoeba *pool, Pixel *pic, Amoeba *best_now, int height, int width)
+{
     int i, j, k, l;
     int tri[Population][2];
     /* sort by evaluation */

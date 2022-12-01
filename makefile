@@ -1,7 +1,7 @@
 flags = -ansi -lMLV
 
 main: picgene.o imageIO.o utils.o amoeba.o pool.o view.o
-	gcc -o main $^ $(flags)
+	gcc -o main $^ $(flags) -O1
 
 picgene.o: picgene.c
 	gcc -c $^ $(flags)
