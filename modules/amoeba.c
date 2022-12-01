@@ -16,9 +16,9 @@ void evaluate(Amoeba *amoeba, Pixel *pic, int height, int width)
             m1 = amoeba->appearance[i][j].m;
             /*distance between picture and current pixel value gives a score*/
             /*color pixel in the amoeba / its transparency - pixel in the picture*/
-            r = abs(((amoeba->appearance[i]+j)->R) / m1 - (&pic[i]+j)->R);
-            g = abs(((amoeba->appearance[i]+j)->G) / m1 - (&pic[i]+j)->G);
-            b = abs(((amoeba->appearance[i]+j)->B) / m1 - (&pic[i]+j)->B);
+            r = abs(((amoeba->appearance[i]+j)->R) / m1 - (pic+ i * width +j)->R);
+            g = abs(((amoeba->appearance[i]+j)->G) / m1 - ((pic+ i * width +j))->G);
+            b = abs(((amoeba->appearance[i]+j)->B) / m1 - ((pic+ i * width +j))->B);
             s += r + g + b;
         }
     }
@@ -34,6 +34,7 @@ void cover_triangle(Amoeba *amoeba, int gen, int height, int width)/*draws trian
     minx = height;
     maxy = 0;
     miny = width;
+
 
     for (i = 0; i < 3; i++)
     { /*here we look for the point most to the left/right/up/down*/
@@ -119,11 +120,13 @@ void cover_triangle(Amoeba *amoeba, int gen, int height, int width)/*draws trian
     for (i = minx; i <= maxx; i++)
     {
         k = miny;
+
         while (amoeba->appearance[i][k].m >= 0)
-            k++; /*checking which side the triangle is on???*/
+            k++; 
         l = maxy;
         while (amoeba->appearance[i][l].m >= 0)
             l--;
+            
         for (j = k; j <= l; j++)
         { /*finally copying the pixel values*/
             amoeba->appearance[i][j].m = 1 + abs(amoeba->appearance[i][j].m);

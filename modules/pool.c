@@ -28,7 +28,7 @@ void init_pool(Amoeba *pool, Pixel* pic, Pixel pixel_average, int height, int wi
             pool[i].gene[j].B = rand() & 255;
             cover_triangle(&pool[i], j, height, width);
         }
-        evaluate(&pool[i], pic, height, width);
+        /*evaluate(&pool[i], pic, height, width);*/
     }
 }
 

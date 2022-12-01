@@ -19,8 +19,9 @@ void pic_getDimensions(char *imgPPM, int *height, int *width)
     fclose(fio);
 }
 
-void init_pic(MLV_Image *img, Pixel *pic, Pixel *pixel_average, int height, int width)
+void init_pic(MLV_Image *img, Pixel* pic, Pixel *pixel_average, int height, int width)
 {
+
     int i, j, k, r, g, b;
 
     int pixelCounter;
@@ -30,10 +31,10 @@ void init_pic(MLV_Image *img, Pixel *pic, Pixel *pixel_average, int height, int 
     {
         for (j = 0; j < width; j++)
         {
-            int *r = &((pic + i * height + j)->R);
-            int *g = &((pic + i * height + j)->G);
-            int *b = &((pic + i * height + j)->B);
-            (pic + i * height + j)->m = 1;
+            int *r = &((pic + i * width + j)->R);
+            int *g = &((pic + i * width + j)->G);
+            int *b = &((pic + i * width + j)->B);
+            (pic + i * width + j)->m = 1;
             int m;
 
             MLV_get_pixel_on_image(img, i, j, r, g, b, &m);
@@ -53,7 +54,7 @@ void init_pic(MLV_Image *img, Pixel *pic, Pixel *pixel_average, int height, int 
     bAcc /= pixelCounter;
     mAcc /= pixelCounter;
 
-    *pixel_average = (Pixel){rAcc, gAcc, bAcc, mAcc};
+    *pixel_average = (Pixel){rAcc, gAcc, bAcc, 1};
 }
 
 void print_best(Amoeba best_now, int height, int width, char *imageOutput)

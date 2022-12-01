@@ -26,7 +26,6 @@ SOFTWARE.
 #include <stdio.h>
 #include <stdlib.h>
 #include <MLV/MLV_all.h>
-#include "io.h"
 #include <time.h>
 #include "modules/types.h"
 #include "modules/imageIO.h"
@@ -35,7 +34,8 @@ SOFTWARE.
 #include "modules/pool.h"
 #include "modules/view.h"
 
-Pixel pic[300*300];
+Pixel pic[MAXHEIGHT][MAXWIDTH];
+Amoeba pool[Population];
 
 int main(int argc, char **argv)
 {
@@ -62,7 +62,7 @@ int main(int argc, char **argv)
 	Pixel pixel_average;
 	int height, width, iternum;
 
-	Amoeba *pool = (Amoeba *)malloc(sizeof(Amoeba) * Population); /*malloc is absolutely necessary here :c*/
+	/*Amoeba *pool = (Amoeba *)malloc(sizeof(Amoeba) * Population); /*malloc is absolutely necessary here :c*/
 
 	MLV_create_window("TP7", "TP7", 1, 1);
 
@@ -82,9 +82,10 @@ int main(int argc, char **argv)
 
 	MLV_draw_image(inputImage, 0, 0);
 	MLV_actualise_window();
-	Pixel pic[height][width];
+	
 	init_pic(inputImage, pic, &pixel_average, height, width);
-	init_pool(pool, pic, pixel_average, height, width);
+	init_pool(pool, pic, pixel_average, height, width);printf("Init\n");
+
 
 	Amoeba best_now = pool[0];
 
@@ -92,13 +93,13 @@ int main(int argc, char **argv)
 	while (genNumber > iternum)
 	{
 		iterate_generation(pool, pic, &best_now, height, width);
-		if (!(iternum % 100))
+		if (!(iternum % 1000))
 		{
-			/*getBestImageNow(&outputImage,best_now,height,width);
+			getBestImageNow(&outputImage,best_now,height,width);
 
 			MLV_draw_image(outputImage, width, 0);
 			MLV_actualise_window();
-			*/
+			
 		}
 
 		iternum++;
