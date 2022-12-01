@@ -33,14 +33,17 @@ void init_pic(MLV_Image *img, Pixel *pic, Pixel *pixel_average, int height, int 
             int *r = &((pic + i * height + j)->R);
             int *g = &((pic + i * height + j)->G);
             int *b = &((pic + i * height + j)->B);
-            int *m = &((pic + i * height + j)->m);
+            (pic + i * height + j)->m = 1;
+            int m;
 
-            MLV_get_pixel_on_image(img, i, j, r, g, b, m);
-            
+            MLV_get_pixel_on_image(img, i, j, r, g, b, &m);
+
+            m = (pic + i * height + j)->m;
+
             rAcc += *r;
             gAcc += *g;
             bAcc += *b;
-            mAcc += *m;
+            mAcc += m;
 
             pixelCounter++;
         }
@@ -74,7 +77,7 @@ void print_best(Amoeba best_now, int height, int width, char *imageOutput)
             b = best_now.appearance[i][j].B;
             b /= x;
 
-            MLV_Color color = MLV_rgba(r,g,b,x);
+            MLV_Color color = MLV_rgba(r,g,b,255);
 
             MLV_set_pixel_on_image(i,j,color,out);
         }

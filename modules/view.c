@@ -27,7 +27,7 @@ void getBestImageNow(MLV_Image** image, Amoeba best_now, int height, int width) 
     for (i=0;i<height;i++) {
         for (j=0;j<width;j++) {
             Pixel pix = best_now.appearance[i][j];
-            MLV_Color color = MLV_rgba(pix.R,pix.G,pix.B,pix.m);
+            MLV_Color color = MLV_rgba(pix.R / pix.m, pix.G / pix.m, pix.B / pix.m,255);
             MLV_set_pixel_on_image(i,j,color,*image);
         }
     }
