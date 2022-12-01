@@ -15,7 +15,7 @@ typedef struct pixel
     int G;
     int B;
     int m;
-} Pixel;
+} Pixel;/*Pixel obj, m is the multiplier for the colors*/
 
 typedef struct triangle
 {
@@ -23,13 +23,13 @@ typedef struct triangle
     int R;
     int G;
     int B;
-} Triangle;
+} Triangle;/*triangle containing the colors, and the coordinates*/
 
 typedef struct amoeba
 {
     Triangle gene[GeneNum];
     Pixel appearance[MAXHEIGHT][MAXWIDTH];
     int evaluation;
-} Amoeba;
+} Amoeba;/*mutating object, ideally evaluation improves every generation*/
 
 #endif

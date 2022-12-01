@@ -2,10 +2,14 @@
 #define __imageIO_
 
 #include "types.h"
+#include <MLV/MLV_all.h>
 
-void pic_getDimensions(char *imgPPM, int *height, int *width) ;
-void init_pic(MLV_Image *img, Pixel *pic, Pixel *pixel_average, int height, int width);
-void print_best(Amoeba best_now, int height, int width,char* imageOutput);
-void print_info(Amoeba best_now, int iternum);
+extern Pixel pic[MAXHEIGHT][MAXWIDTH];
+extern Amoeba best_now;
+extern int height, width;
+
+void init_pic(MLV_Image *img, Pixel *pixel_average);/*initializes pic, which has to be a global variable*/
+void print_info(int iternum);/*prints information of the CURRENT generation, uses best_now*/
+void getBestImageNow(MLV_Image **image); /*returns inside the obj the best image we have, using best_now*/
 
 #endif

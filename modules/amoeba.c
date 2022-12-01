@@ -1,10 +1,12 @@
 
 #include "types.h"
 #include "utils.h"
+#include "amoeba.h"
 #include <stdlib.h>
 #include <stdio.h>
 
-void evaluate(Amoeba *amoeba, Pixel *pic, int height, int width)
+
+void evaluate(Amoeba *amoeba)
 {
     int i, j, m1;
     int r, g, b;
@@ -16,16 +18,16 @@ void evaluate(Amoeba *amoeba, Pixel *pic, int height, int width)
             m1 = amoeba->appearance[i][j].m;
             /*distance between picture and current pixel value gives a score*/
             /*color pixel in the amoeba / its transparency - pixel in the picture*/
-            r = abs(((amoeba->appearance[i]+j)->R) / m1 - (pic+ i * width +j)->R);
-            g = abs(((amoeba->appearance[i]+j)->G) / m1 - ((pic+ i * width +j))->G);
-            b = abs(((amoeba->appearance[i]+j)->B) / m1 - ((pic+ i * width +j))->B);
+            r = abs(((amoeba->appearance[i]+j)->R) / m1 - pic[i][j].R);
+            g = abs(((amoeba->appearance[i] + j)->G) / m1 - pic[i][j].G);
+            b = abs(((amoeba->appearance[i] + j)->B) / m1 - pic[i][j].B);
             s += r + g + b;
         }
     }
     amoeba->evaluation = s;
 }
 
-void cover_triangle(Amoeba *amoeba, int gen, int height, int width)/*draws triangle according to the picture*/
+void cover_triangle(Amoeba *amoeba, int gen)/*draws triangle according to the picture*/
 {
     int i, j, k, l, p, maxx, minx, maxy, miny, sgn1, sgn2;
     Triangle tri = amoeba->gene[gen];
@@ -137,7 +139,7 @@ void cover_triangle(Amoeba *amoeba, int gen, int height, int width)/*draws trian
     }
 }
 
-void delete_triangle(Amoeba *amoeba, int gen, int height, int width) /*removes triangle*/
+void delete_triangle(Amoeba *amoeba, int gen) /*removes triangle*/
 {
     int i, j, k, l, p, maxx, minx, maxy, miny, sgn1, sgn2;
     Triangle tri;

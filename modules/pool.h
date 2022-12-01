@@ -1,9 +1,14 @@
-#ifndef __poolOps_
-#define __poolOps_
+#ifndef __pool_
+#define __pool_
 
 #include "types.h"
 
-void init_pool(Amoeba* pool,Pixel** pic, Pixel pixel_average, int height, int width);
-void iterate_generation(Amoeba* pool,Pixel** pic,Amoeba* best_now, int height, int width);
+extern Amoeba pool[Population];
+extern Pixel pic[MAXHEIGHT][MAXWIDTH];
+extern Amoeba best_now;
+extern int height, width;
+
+void init_pool(Pixel pixel_average);/*initializing pool (global variable)*/
+void iterate_generation();/*iterating generation inside pool*/
 
 #endif

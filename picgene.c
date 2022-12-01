@@ -36,11 +36,17 @@ SOFTWARE.
 
 Pixel pic[MAXHEIGHT][MAXWIDTH];
 Amoeba pool[Population];
+Amoeba best_now;
+int height, width;
 
 int main(int argc, char **argv)
 {
+	clock_t start,end;
+	start = clock();
+
 	int genNumber = 10;
 	char *imageInputPath = "images/input.ppm";
+	/*default values*/
 
 	if (argc < 2)
 	{
@@ -56,85 +62,81 @@ int main(int argc, char **argv)
 	{
 		genNumber = strtol(argv[1], NULL, 10);
 		imageInputPath = argv[2];
-		printf("Using arguments:\ngenNumber = %d\ninputImagePath = %s\n",genNumber,imageInputPath);
+		printf("Using arguments:\ngenNumber = %d\ninputImagePath = %s\n", genNumber, imageInputPath);
 	}
 
-	char *imageOutputPath = "images/output.bmp";
+	char *imageOutputPath = "images/output.bmp";/*output*/
 	Pixel pixel_average;
-	int height, width, iternum;
+	int iternum;
 
-	/*Amoeba *pool = (Amoeba *)malloc(sizeof(Amoeba) * Population); /*malloc is absolutely necessary here :c*/
+	MLV_create_window("TP7", "TP7", 1, 1);/*creating window, will resize later*/
 
-	MLV_create_window("TP7", "TP7", 1, 1);
-
-	MLV_Image *inputImage = MLV_load_image(imageInputPath);
+	MLV_Image *inputImage = MLV_load_image(imageInputPath);/*loading input image*/
 	MLV_Image *outputImage;
-	MLV_Image *blackImage = MLV_load_image("images/black.jpg");
 
-	MLV_get_image_size(inputImage, &width, &height);
+	MLV_get_image_size(inputImage, &width, &height);/*getting size*/
 
-	if (height > MAXHEIGHT || width > MAXWIDTH)
+	if (height > MAXHEIGHT || width > MAXWIDTH)/*making sure it fits*/
 	{
 		printf("Image is too big, edit the constats in const.h to fit\n");
 		exit(1);
 	}
 
-	MLV_change_window_size(width * 2, height * 2);
+	MLV_change_window_size(width * 2, height);/*resizing based on image size*/
 
-	MLV_draw_image(inputImage, 0, 0);
+	MLV_draw_image(inputImage, 0, 0);/*drawing input*/
 	MLV_actualise_window();
-	
-	init_pic(inputImage, pic, &pixel_average, height, width);
-	init_pool(pool, pic, pixel_average, height, width);
 
+	init_pic(inputImage, &pixel_average);/*initializing pic, internal representation*/
+	init_pool(pixel_average);/*initializing our genetic pool*/
 
-	Amoeba best_now = pool[0];
+	best_now = pool[0];/*initializing best_now as the best value*/
 
 	iternum = 0;
 
-	clock_t start, end;
+	clock_t startIteration, endIteration;
 	double cpu_time_used;
 
 	while (genNumber > iternum)
 	{
-		start = clock();
+		startIteration = clock();
 
-		iterate_generation(pool, pic, &best_now, height, width);
-		
-		end = clock();
-		cpu_time_used += ((double)(end - start)) / CLOCKS_PER_SEC;
+		iterate_generation();/*getting next generation*/
 
-		if (!(iternum % 100))
+		endIteration = clock();
+		cpu_time_used += ((double)(endIteration - startIteration)) / CLOCKS_PER_SEC;
+
+		if (!(iternum % 100))/*print information*/
 		{
-			getBestImageNow(&outputImage,best_now,height,width);
+			getBestImageNow(&outputImage);
 
 			MLV_draw_image(outputImage, width, 0);
 			MLV_actualise_window();
 
-			printf("Evaluation: %d\n",best_now.evaluation);
+			print_info(iternum);
 		}
 
 		iternum++;
 	}
 
-	printf("avg time spent iterating %f\n", cpu_time_used/iternum);
+	printf("avg time spent calculating the next generation: %f\n", cpu_time_used / iternum);
 
-	print_info(best_now, iternum);
-	getBestImageNow(&outputImage, best_now, height, width);
 
-	if (MLV_save_image_as_bmp(outputImage, imageOutputPath))
+	getBestImageNow(&outputImage);/*putting the best image inside object*/
+
+	if (MLV_save_image_as_bmp(outputImage, imageOutputPath))/*saving the best image as file*/
 	{
 		printf("ERROR couldn't save!\n");
 	}
-
-	MLV_Image *finalOutput = MLV_load_image(imageOutputPath);
-	MLV_draw_image(finalOutput, 0, height);
-	MLV_actualise_window();
 
 	MLV_wait_seconds(10);
 
 	MLV_free_image(inputImage);
 	MLV_free_image(outputImage);
 	MLV_free_window();
+
+	end = clock();
+	cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
+	printf("Total runtime: %fs\n",cpu_time_used);
 	return 0;
 }
