@@ -122,21 +122,27 @@ int main(int argc, char **argv)
 	printf("avg time spent calculating the next generation: %f\n", cpu_time_used / iternum);
 
 
-	getBestImageNow(&outputImage);/*putting the best image inside object*/
+	/*putting the best image inside object*/
+	getBestImageNow(&outputImage);
+
+	MLV_draw_image(outputImage, width, 0);
+	MLV_actualise_window();
+
+	print_info(iternum);
 
 	if (MLV_save_image_as_bmp(outputImage, imageOutputPath))/*saving the best image as file*/
 	{
 		printf("ERROR couldn't save!\n");
 	}
 
+	end = clock();
+	cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC / 60;
+	printf("Total runtime: %fm\nLeaving the picture on for 10 seconds\n", cpu_time_used);
+
 	MLV_wait_seconds(10);
 
 	MLV_free_image(inputImage);
 	MLV_free_image(outputImage);
 	MLV_free_window();
-
-	end = clock();
-	cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
-	printf("Total runtime: %fs\n",cpu_time_used);
 	return 0;
 }
